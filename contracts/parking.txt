@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Parking {
+    struct Spot {
+        uint id;
+        address renter;
+        uint duration;
+        string licensePlate;
+        bool isRented;
+    }
+
+    struct Review {
+        uint spotId;
+        address reviewer;
+        uint stars;
+        string comment;
+    }
+
+    mapping(uint => Spot) public spots;
+    mapping(uint => Review[]) public reviews;
+    uint public nextSpotId = 1;
+
+    function rentSpot(uint duration, string memory licensePlate) public {
+        spots[nextSpotId] = Spot(nextSpotId, msg.sender, duration, licensePlate, true);
+        nextSpotId++;
+    }
+
+    function reviewSpot(uint spotId, uint stars, string memory comment) public {
+        require(stars >= 1 && stars <= 5, "Stars must be between 1 and 5");
+        reviews[spotId].push(Review(spotId, msg.sender, stars, comment));
+    }
+
+    function getSpot(uint spotId) public view returns (Spot memory) {
+        return spots[spotId];
+    }
+
+    function getReviews(uint spotId) public view returns (Review[] memory) {
+        return reviews[spotId];
+    }
+}
