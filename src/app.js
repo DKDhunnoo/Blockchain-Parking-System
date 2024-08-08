@@ -56,13 +56,11 @@ App = {
     
     loadContract: async () => {
       // Create a JavaScript version of the smart contract
-      const todoList = await $.getJSON('TodoList.json')
-      App.contracts.TodoList = TruffleContract(todoList)
-      App.contracts.TodoList.setProvider(App.web3Provider)
+      const parkingSystem = await $.getJSON('ParkingSystem.json')
+      App.contracts.ParkingSystem = TruffleContract(parkingSystem)
+      App.contracts.ParkingSystem.setProvider(App.web3Provider)
       // Hydrate the smart contract with values from the blockchain
-      App.todoList = await App.contracts.TodoList.deployed()
-      //console.log(todoList)
-      //console.log(App.todoList)      
+      App.parkingSystem = await App.contracts.ParkingSystem.deployed()
     },
 
     render: async () => {
@@ -88,57 +86,60 @@ App = {
     renderTasks: async () => {
        
       // Load the total task count from the blockchain
-      const taskCount = await App.todoList.taskCount()
+      const reservationCount = await App.parkingSystem.reservationCount()
       //console.log(taskCount)
       //window.alert(taskCount)
 
       //refering to id tasktemplate in html
-      const $taskTemplate = $('.taskTemplate')
+      const $reservationTemplate = $('.reservationTemplate')
          
       // Render out each task with a new task template
-      for (var i = 1; i <= taskCount; i++) {
+      for (var i = 1; i <= reservationCount; i++) {
         
         // Fetch the task data from the blockchain
-        const task = await App.todoList.tasks(i)
+        const reservation = await App.parkingSystem.reservations(i)
         //window.alert(task)
-        const taskId = task[0].toNumber()
+        const reservationId = reservation[0].toNumber()
         //window.alert(taskId)
-        const taskContent = task[1]
-        //window.alert(taskContent)
-        const taskCompleted = task[2]
-        //window.alert(taskCompleted)
+        const startDate = reservation[1].toNumber()
+        const endDate = reservation[2].toNumber()
+        const clientName = reservation[3]
+        const parkingLevelNum = reservation[4]
+        const parkingSpaceNum = reservation[5]
+        const completed = task[6]
+        //window.alert(completed)
 
         // Create the html for the task
-        const $newTaskTemplate = $taskTemplate.clone()
+        const $newReservationTemplate = $reservationTemplate.clone()
 
         //.content refering to class=content
         //input refering to input type
-        $newTaskTemplate.find('.content').html(taskContent)
-        $newTaskTemplate.find('input')
-                        .prop('name', taskId)
-                        .prop('checked', taskCompleted)
+        $newReservationTemplate.find('.content').html(clientName)
+        $newReservationTemplate.find('input')
+                        .prop('name', reservationId)
+                        .prop('checked', completed)
                         .on('click', App.toggleCompleted)
                 
         // Put the task in the correct list
         
         
-        if (taskCompleted) {
-          $('#completedTaskList').append($newTaskTemplate)
+        if (completed) {
+          $('#completedReservation').append($newReservationTemplate)
           //window.alert("taskcom true")
         } else {
-          $('#taskList').append($newTaskTemplate)
+          $('#registrationList').append($newReservationTemplate)
           //window.alert("taskcom false")
         }
         // Show the task
-        $newTaskTemplate.show()
+        $newReservationTemplate.show()
         
       }
     },
 
     createTask: async () => {
         App.setLoading(true)
-        const content = $('#newTask').val()
-        await App.todoList.createTask(content, {from: App.account})
+        const content = $('#newREgistration').val()
+        await App.parkingSystem.createRegistration(content, {from: App.account}) //REached here
         window.location. reload()
     },
 
