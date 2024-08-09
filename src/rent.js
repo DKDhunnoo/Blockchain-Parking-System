@@ -431,18 +431,32 @@ const connectWallet = async () => {
   }
 };
 
-const rateSpot = async (parkingSpaceNum) => {
-  const startDate = document.getElementById('startDate').value;
-  const endDate = document.getElementById('endDate').value;
-
+const rentSpot = async (parkingSpaceNum) => {
   if (contract && account) {
-    await contract.methods.createReservation(startDate, endDate,parkingSpaceNum).send({ from: account });
+    await contract.methods.createReservation(startDateTime.valueOf(), endDateTime.valueOf(),parkingSpaceNum).send({ from: account });
     getAvailableSpots();
   }
 };
 
-  //start: 1723148632
-  //end: 1723158634
+  //start: 1723197600000
+  //end: 1723201200000
+
+  var startDateTime;
+  var endDateTime;
+
+  // Function to log selected start datetime
+  document.getElementById('startdatetime').addEventListener('change', function() {
+    console.log(this.value);
+    startDateTime = new Date(this.value);
+    console.log('Start DateTime:', startDateTime.valueOf());
+  });
+
+  // Function to log selected end datetime
+  document.getElementById('enddatetime').addEventListener('change', function() {
+    endDateTime = new Date(this.value);
+    console.log(this.value);
+    console.log('End DateTime:', endDateTime.valueOf());
+  });
 
 const getAvailableSpots = async () => {
   console.log("In function");
@@ -450,20 +464,19 @@ const getAvailableSpots = async () => {
   // Load the total task count from the blockchain
   const reservationCount = await contract.methods.reservationCount.call().call();
 
-    //convert date from millisecondSinceEpoch to text
-  const startDate = document.getElementById('startDate').value;
-  const endDate = document.getElementById('endDate').value;
-
-    //Create new set to store rented spots for this time.
+  //Create new set to store rented spots for this time.
   var rented = new Set();
 
   for (var i = 1; i <= reservationCount; i++) {
-    const reservation = await contract.methods.reservations(i).call();
+    const previousReservation = await contract.methods.reservations(i).call();
+
+    console.log(parseInt(previousReservation.startDate) + "|" + startDateTime.valueOf());
+    console.log(parseInt(previousReservation.endDate) + "|" + endDateTime.valueOf());
 
     //if scheduled, add to set
-    if(!((reservation.startDate < startDate && reservation.endDate < endDate) || (reservation.startDate > startDate && reservation.endDate > endDate)) && reservation.completed == false)
+    if(!((startDateTime.valueOf() < parseInt(previousReservation.startDate) && endDateTime.valueOf() < parseInt(previousReservation.startDate)) || (startDateTime.valueOf() > parseInt(previousReservation.endDate) && endDateTime.valueOf() > parseInt(previousReservation.endDate))) && previousReservation.completed == false)
     {
-        rented.add(reservation.parkingSpaceNum);
+        rented.add(previousReservation.parkingSpaceNum);
     }
   }
 
@@ -473,9 +486,14 @@ const getAvailableSpots = async () => {
   for( var i = 1; i <= 10; i++)
   {
     //show the ones that hasn't been rented yet
-    if(!rented.has(i.toString()))
+    if(rented.has(i.toString()))
     {
-        document.getElementById("tableActive").innerHTML+= "<tr><td>"+i+"</td><td><button onclick='rentSpot("+i+")'>Rent</button></td></tr>";
+        document.getElementById("tableActive").innerHTML+= "<tr><td>"+i+"</td><td><button>Unavailable</button></td></tr>";
+    }
+    else
+    {
+      document.getElementById("tableActive").innerHTML+= "<tr><td>"+i+"</td><td><button onclick='rentSpot("+i+")'>Rent</button></td></tr>";
     }
   }
 };
+

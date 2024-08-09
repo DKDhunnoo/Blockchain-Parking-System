@@ -478,12 +478,15 @@ const viewReservations = async () => {
   for (var i = 1; i <= reservationCount; i++) {
     const reservation = await contract.methods.reservations(i).call();
 
+    const formattedStartDate = new Date(parseInt(reservation.startDate));
+    const formattedEndDate = new Date(parseInt(reservation.endDate));
+
     if(reservation.completed)
     {
-      document.getElementById("tableCompleted").innerHTML+= "<tr><td>"+reservation.reservationId+"</td><td>"+reservation.userId+"</td><td>"+reservation.startDate+"</td><td>"+reservation.endDate+"</td><td>"+reservation.parkingSpaceNum+"</td><td><button onclick='rateSpot("+reservation.parkingSpaceNum+")'>Rate</button></td></tr>";
+      document.getElementById("tableCompleted").innerHTML+= "<tr><td>"+reservation.reservationId+"</td><td>"+reservation.userId+"</td><td>"+formattedStartDate.toLocaleString()+"</td><td>"+formattedEndDate.toLocaleString()+"</td><td>"+reservation.parkingSpaceNum+"</td><td><button onclick='rateSpot("+reservation.parkingSpaceNum+")'>Rate</button></td></tr>";
     }
     else{
-      document.getElementById("tableActive").innerHTML+= "<tr><td>"+reservation.reservationId+"</td><td>"+reservation.userId+"</td><td>"+reservation.startDate+"</td><td>"+reservation.endDate+"</td><td>"+reservation.parkingSpaceNum+"</td><td><button onclick='completeRent("+i+")'>Complete</button></td></tr>"; 
+      document.getElementById("tableActive").innerHTML+= "<tr><td>"+reservation.reservationId+"</td><td>"+reservation.userId+"</td><td>"+formattedStartDate.toLocaleString()+"</td><td>"+formattedEndDate.toLocaleString()+"</td><td>"+reservation.parkingSpaceNum+"</td><td><button onclick='completeRent("+i+")'>Complete</button></td></tr>"; 
     }
   }
 };
