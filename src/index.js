@@ -407,6 +407,7 @@ window.addEventListener('load', async () => {
       // Initial data loading can be done here
       viewReservations();
       loadPoints();
+      getAvailableSpots();
     } catch (error) {
       console.error("User denied account access", error);
     }
@@ -463,16 +464,38 @@ const rateSpot = async (parkingSpaceNum) =>{
   window.location="rate.html?parkingSpaceNum="+parkingSpaceNum;
 }
 
+const getAvailableSpots = async () => {
+  // Load the total task count from the blockchain
+  const reservationCount = await contract.methods.reservationCount.call().call();
+
+  //Create new set to store rented spots for this time.
+  var rented = 0;
+  console.log("starting");
+
+  for (var i = 1; i <= reservationCount; i++) {
+    const previousReservation = await contract.methods.reservations(i).call();
+
+    //if scheduled, add to rented set so that it shows up as not unavailable
+    if(!((Date.now() < parseInt(previousReservation.startDate) && Date.now() < parseInt(previousReservation.startDate)) || (Date.now() > parseInt(previousReservation.endDate) && Date.now() > parseInt(previousReservation.endDate))) && previousReservation.completed == false)
+    {
+      rented++;
+    }
+  }
+
+  console.log(rented);
+  document.getElementById('spaces').innerText = (10 - rented) + " of 10";
+};
+
 const viewReservations = async () => {
-  console.log("In function");
+  //console.log("In function");
 
   // Load the total task count from the blockchain
   const reservationCount = await contract.methods.reservationCount.call().call();
-  console.log("after accessing count: ", reservationCount);
+  //console.log("after accessing count: ", reservationCount);
 
-  document.getElementById("tableCompleted").innerHTML= "<tr><th>Reservation ID</th><th>User Id</th><th>Start Date</th><th>End Date</th><th>Parking Space</th><tr>";
+  document.getElementById("tableCompleted").innerHTML= "<tr><th>Reservation ID</th><th>User Id</th><th>Start Date</th><th>End Date</th><th>Parking Space</th><th>Action</th><tr>";
 
-  document.getElementById("tableActive").innerHTML= "<tr><th>Reservation ID</th><th>User Id</th><th>Start Date</th><th>End Date</th><th>Parking Space</th></tr>";
+  document.getElementById("tableActive").innerHTML= "<tr><th>Reservation ID</th><th>User Id</th><th>Start Date</th><th>End Date</th><th>Parking Space</th><th>Action</th></tr>";
      
   // Render out each task with a new task template
   for (var i = 1; i <= reservationCount; i++) {

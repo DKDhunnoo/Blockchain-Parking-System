@@ -58,7 +58,6 @@ contract ParkingSystem {
 
     //add new parking spots into the system
     function addParkingSpot(uint _cost, bool _hasEVCharger, uint _distanceToExit, bool _hasRoof) public {
-
         spotCount++;
         spots[spotCount] = ParkingSpot(spotCount, _cost, _hasEVCharger, _distanceToExit, _hasRoof);
     }

@@ -404,8 +404,6 @@ window.addEventListener('load', async () => {
       account = accounts[0];
       document.getElementById('user-address').innerText = `Connected: ${account}`;
       contract = new web3.eth.Contract(contractABI, contractAddress);
-      // Initial data loading can be done here
-      getAvailableSpots();
     } catch (error) {
       console.error("User denied account access", error);
     }
@@ -446,16 +444,25 @@ const rentSpot = async (parkingSpaceNum) => {
 
   // Function to log selected start datetime
   document.getElementById('startdatetime').addEventListener('change', function() {
-    console.log(this.value);
+    //convert date to millisecondSinceEpoch for comparison
     startDateTime = new Date(this.value);
-    console.log('Start DateTime:', startDateTime.valueOf());
+
+    //ensure that both start time and end time has been chosen
+    if(endDateTime != null){
+      getAvailableSpots();
+    }
+    
   });
 
   // Function to log selected end datetime
   document.getElementById('enddatetime').addEventListener('change', function() {
+    //convert date to millisecondSinceEpoch for comparison
     endDateTime = new Date(this.value);
-    console.log(this.value);
-    console.log('End DateTime:', endDateTime.valueOf());
+
+    //ensure that both start time and end time has been chosen
+    if(startDateTime != null){
+      getAvailableSpots();
+    }
   });
 
 const getAvailableSpots = async () => {
@@ -470,29 +477,48 @@ const getAvailableSpots = async () => {
   for (var i = 1; i <= reservationCount; i++) {
     const previousReservation = await contract.methods.reservations(i).call();
 
-    console.log(parseInt(previousReservation.startDate) + "|" + startDateTime.valueOf());
-    console.log(parseInt(previousReservation.endDate) + "|" + endDateTime.valueOf());
-
-    //if scheduled, add to set
+    //if scheduled, add to rented set so that it shows up as not unavailable
     if(!((startDateTime.valueOf() < parseInt(previousReservation.startDate) && endDateTime.valueOf() < parseInt(previousReservation.startDate)) || (startDateTime.valueOf() > parseInt(previousReservation.endDate) && endDateTime.valueOf() > parseInt(previousReservation.endDate))) && previousReservation.completed == false)
     {
-        rented.add(previousReservation.parkingSpaceNum);
+      rented.add(previousReservation.parkingSpaceNum);
     }
   }
 
+  // get all reviews
+  const ratingCount = await contract.methods.ratingCount.call().call();
+
+  //create 2d array to store marks
+  var ratingSum = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  var ratingCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  var ratingAverages = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+  //loop in rating array and sum the ratings and increment the counts
+  for(var i = 0; i < ratingCount; i++){
+    const rating = await contract.methods.ratings(i + 1).call();
+
+    ratingSum[rating.parkingSpaceNum - 1] += parseInt(rating.rating);
+    ratingCounts[rating.parkingSpaceNum - 1]++;
+  }
+
+  //initialise table
   document.getElementById("tableActive").innerHTML= "<tr><th>Parking Space</th><th>Rating</th></tr>";
 
+  console.log(ratingSum);
+
   //for all the spots
-  for( var i = 1; i <= 10; i++)
+  for(var i = 1; i <= 10; i++)
   {
+    //calculate average
+    ratingAverages[i - 1] = ratingSum[i - 1]/ratingCounts[i - 1];
+
     //show the ones that hasn't been rented yet
     if(rented.has(i.toString()))
     {
-        document.getElementById("tableActive").innerHTML+= "<tr><td>"+i+"</td><td><button>Unavailable</button></td></tr>";
+        document.getElementById("tableActive").innerHTML+= "<tr><td>"+i+"</td><td>"+ratingAverages[i - 1].toFixed(1)+"</td><td><button>Unavailable</button></td></tr>";
     }
     else
     {
-      document.getElementById("tableActive").innerHTML+= "<tr><td>"+i+"</td><td><button onclick='rentSpot("+i+")'>Rent</button></td></tr>";
+      document.getElementById("tableActive").innerHTML+= "<tr><td>"+i+"</td><td>"+ratingAverages[i - 1].toFixed(1)+"</td><td><button onclick='rentSpot("+i+")'>Rent</button></td></tr>";
     }
   }
 };

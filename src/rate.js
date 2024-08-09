@@ -396,8 +396,6 @@ const contractABI = [{
 }];
 
 window.addEventListener('load', async () => {
-  getSpotId();
-
   if (window.ethereum) {
     web3 = new Web3(window.ethereum);
     try {
@@ -413,8 +411,10 @@ window.addEventListener('load', async () => {
   } else {
     console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
   }
-
+  
+  getSpotId();
   getPreviousRatings();
+  getTotalRents();
 });
 
 const connectWallet = async () => {
@@ -440,10 +440,10 @@ var spotId;
 function getSpotId(){
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
-  spotId = urlParams.get('parkingSpaceNum');
-  console.log(spotId);
+  spotId = parseInt(urlParams.get('parkingSpaceNum'));
+  //console.log(spotId);
 
-  document.getElementById('spotId-display').innerHTML = "<p>Spot ID: " + spotId + "</p>";
+  document.getElementById('spot-info').innerHTML = "<p>Spot ID: " + spotId + "</p>";
 }
 
 const reviewSpot = async () => {
@@ -453,15 +453,22 @@ const reviewSpot = async () => {
     if (contract && account) {
       await contract.methods.rateSpot(spotId, stars, comment).send({ from: account });
 
+      getSpotId();
       getPreviousRatings();
+      getTotalRents();
     }
   };
 
 const getPreviousRatings = async () => {
-
   // Load the total task count from the blockchain
   const ratingCount = await contract.methods.ratingCount.call().call();
 
+    //create variables to store rating information
+    var ratingSum = 0;
+    var ratingCounts = 0;
+    var ratingAverage = 0;
+
+  //initialise table
   document.getElementById("tablePreviousRatings").innerHTML= "<tr><th>User ID</th><th>Rating</th><th>Comments</th></tr>";
 
   for (var i = 1; i <= ratingCount; i++) {
@@ -470,9 +477,31 @@ const getPreviousRatings = async () => {
     //show ratings for this parking spot
     if(rating.parkingSpaceNum == spotId)
     {
-        document.getElementById("tablePreviousRatings").innerHTML+= "<tr><td>"+rating.userId+"</td><td>"+rating.rating+"</td><td>"+rating.comments+"</td></tr>";
+      ratingSum += parseInt(rating.rating);
+      ratingCounts++;
+
+      document.getElementById("tablePreviousRatings").innerHTML+= "<tr><td>"+rating.userId+"</td><td>"+rating.rating+"</td><td>"+rating.comments+"</td></tr>";
     }
   }
-  //start: 1723148632
-  //end: 1723158634
+
+  //calculate rating average and add to spot info
+  ratingAverage = ratingSum/ratingCounts;
+  document.getElementById('spot-info').innerHTML += "<p>Rating: " + ratingAverage.toFixed(1) + "</p>";
 };
+
+const getTotalRents = async () => {
+  //calculate total number of rents
+  const reservationCount = await contract.methods.reservationCount.call().call();
+
+  var rentCount = 0;
+  
+  for (var i = 1; i <= reservationCount; i++) {
+    const previousReservation = await contract.methods.reservations(i).call();
+
+    if(parseInt(previousReservation.parkingSpaceNum) == spotId){
+      rentCount++;
+    }
+  }
+
+  document.getElementById('spot-info').innerHTML += "<p>Total Rents: " + rentCount + "</p>";
+}
