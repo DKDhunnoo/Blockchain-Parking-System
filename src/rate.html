@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parking DApp</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Parking DApp</h1>
+
+    <!-- Back Button Section -->
+    <div id="connect-wallet">
+        <p id="user-address"></p>
+        <button onclick="window.location='index.html'">Back</button>
+    </div>
+
+    <!-- Add value to show how many times it has been rented -->
+    <!-- Review Parking Section -->
+    <div id="review-parking">
+        <h2>Review a Parking Spot</h2>
+        <div id="spotId-display"><p>Spot ID: </p></div>
+        <input id="stars" placeholder="Stars" type="number" min="1" max="5" />
+        <input id="comment" placeholder="Comment" />
+        <button onclick="reviewSpot()">Submit Review</button>
+      </div>
+  </div>
+
+  <!-- View comments for spot Section -->
+  <div id="view-reservations-completed">
+    <h1>Previous reviews for this spot</h1>
+    <table id="tablePreviousRatings">
+      <tr>
+        <th>User ID</th>
+        <th>Rating</th>
+        <th>Comments</th>
+      </tr>
+    </table>    
+  </div>
+
+  <script src="rate.js"></script>
+</body>
+</html>

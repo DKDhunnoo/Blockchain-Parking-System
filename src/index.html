@@ -17,29 +17,45 @@
       <p id="user-address"></p>
     </div>
 
-    <!-- Rent Parking Section -->
-    <div id="rent-parking">
-      <h2>Rent a Parking Spot</h2>
-      <input id="duration" placeholder="Duration (hours)" />
-      <input id="license-plate" placeholder="License Plate" />
-      <button onclick="rentSpot()">Rent Spot</button>
-    </div>
-
-    <!-- Review Parking Section -->
-    <div id="review-parking">
-      <h2>Review a Parking Spot</h2>
-      <input id="review-spot-id" placeholder="Spot ID" />
-      <input id="stars" placeholder="Stars" type="number" min="1" max="5" />
-      <input id="comment" placeholder="Comment" />
-      <button onclick="reviewSpot()">Submit Review</button>
-    </div>
-
     <!-- Points System Section -->
     <div id="points-system">
-      <h2>Points System</h2>
       <p>Your Points: <span id="points"></span></p>
     </div>
+
+    <!-- Rent Parking Section -->
+    <div id="rent-parking">
+      <button onclick="window.location='rent.html'">Rent Spot</button>
+    </div>
+
+    <!-- View Reservations Section -->
+    <div id="view-reservations-active">
+      <h2>Rented Spots</h2>
+      <table id="tableActive">
+        <tr>
+          <th>Reservation ID</th>
+          <th>User Address</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Parking Space</th>
+        </tr>
+      </table>    
+    </div>
+
+    <div id="view-reservations-complete">
+      <h2>Previous Reservations</h2>
+      <table id="tableCompleted">
+        <tr>
+          <th>Reservation ID</th>
+          <th>User Address</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Parking Space</th>
+        </tr>
+      </table>    
+    </div>
+
   </div>
-  <script src="app.js"></script>
+
+  <script src="index.js"></script>
 </body>
 </html>
