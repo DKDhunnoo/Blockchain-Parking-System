@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple DateTime Picker</title>
+    <!-- Include Pikaday CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/css/pikaday.min.css">
+</head>
+<body>
+    <div style="margin: 50px;">
+        <label for="startdatetime">Start Date and Time:</label>
+        <input type="text" id="startdatetime" placeholder="Select Start Date and Time">
+
+        <br><br>
+
+        <label for="enddatetime">End Date and Time:</label>
+        <input type="text" id="enddatetime" placeholder="Select End Date and Time">
+    </div>
+
+    <!-- Include Pikaday JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
+    <!-- Include Moment.js for time formatting (optional, but useful) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+    <!-- Include the custom JS -->
+    <script src="app.js"></script>
+</body>
+</html>
