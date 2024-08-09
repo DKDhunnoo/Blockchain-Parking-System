@@ -1,21 +1,11 @@
-// Initialize the date picker for start date and time
-const startPicker = new Pikaday({
-    field: document.getElementById('startdatetime'),
-    format: 'YYYY-MM-DD HH:mm',
-    showTime: true,
-    use24hour: true,
-    onSelect: function() {
-        console.log('Start DateTime:', this.getMoment().format('YYYY-MM-DD HH:mm'));
-    }
+// Function to log selected start datetime
+document.getElementById('startdatetime').addEventListener('change', function() {
+    const startDateTime = this.value;
+    console.log('Start DateTime:', startDateTime);
 });
 
-// Initialize the date picker for end date and time
-const endPicker = new Pikaday({
-    field: document.getElementById('enddatetime'),
-    format: 'YYYY-MM-DD HH:mm',
-    showTime: true,
-    use24hour: true,
-    onSelect: function() {
-        console.log('End DateTime:', this.getMoment().format('YYYY-MM-DD HH:mm'));
-    }
+// Function to log selected end datetime
+document.getElementById('enddatetime').addEventListener('change', function() {
+    const endDateTime = this.value;
+    console.log('End DateTime:', endDateTime);
 });
